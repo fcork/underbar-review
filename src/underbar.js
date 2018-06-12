@@ -42,8 +42,8 @@
       return array;
     }else{
       return n === undefined ? array[array.length-1] : array.slice(array.length-n);
-      }
-    };
+    }
+  };
 
   // Call iterator(value, key, collection) for each element of collection.
   // Accepts both arrays and objects.
@@ -107,9 +107,9 @@
         results.push(item);
       }
     })
-      if (iterator){
-        results = _.filter(results, iterator);
-      }
+    if (iterator){
+      results = _.filter(results, iterator);
+    }
     return results;
   };
 
@@ -237,7 +237,15 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-
+    var sources = Array.prototype.slice.call(arguments,1);
+    _.each(sources,function(source){
+      _.each(source,function(value,key){
+        if(!obj.hasOwnProperty(key)){
+          obj[key] = value;
+        }
+      })
+    })
+    return obj;
   };
 
 
@@ -281,6 +289,14 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var hist = {}
+    return function(){
+      var args = JSON.stringify(arguments)
+      if(!hist.hasOwnProperty(args)){
+        hist[args] = func.apply(this,arguments)
+      }
+      return hist[args];
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -290,6 +306,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = [].slice.call(arguments, 2)
+    return setTimeout(function(){
+      func.apply(this, args)
+    }, wait)
   };
 
 
@@ -304,6 +324,15 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+  var shuffled = array.slice();
+  for (var i = shuffled.length-1; i > 0; i--){
+    let randomIndex = Math.floor(Math.random()*(i + 1));
+    // var temp = shuffled[i];
+    // shuffled[i] = shuffled[randomIndex];
+    // shuffled[randomIndex] = temp;
+    [shuffled[i],shuffled[randomIndex]]=[shuffled[randomIndex],shuffled[i]]
+    }
+  return shuffled;
   };
 
 
